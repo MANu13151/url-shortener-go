@@ -1,0 +1,68 @@
+services:
+  api:
+    build: .
+    container_name: shortly-go
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - MYSQL_DSN=shortly:shortly_pass@tcp(mysql:3306)/shortly?parseTime=true
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - APP_PORT=8080
+      - BASE_URL=http://localhost:8080
+      - CORS_ALLOWED_ORIGIN=*
+      - FRONTEND_URL=http://localhost:5173
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - shortly_net
+
+  mysql:
+    image: mysql:8.0
+    container_name: shortly-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: shortly
+      MYSQL_USER: shortly
+      MYSQL_PASSWORD: shortly_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - shortly_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: shortly-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - shortly_net
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  shortly_net:
+    driver: bridge

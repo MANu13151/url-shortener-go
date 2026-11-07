@@ -1,0 +1,18 @@
+# Environment variables
+api/.env
+web/.env
+*.env
+*.env.local
+
+# Go build output
+api/server
+
+# React build output
+web/dist/
+web/node_modules/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
