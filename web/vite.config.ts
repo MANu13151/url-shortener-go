@@ -2,8 +2,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+declare const process: { env: Record<string, string | undefined> }
+
+const basePath = process?.env?.VITE_BASE_PATH || '/url-shortener-go/'
+
 export default defineConfig({
-  base: process.env.VITE_BASE_PATH || '/',
+  base: basePath,
   plugins: [
     react(),
     VitePWA({
@@ -17,8 +21,8 @@ export default defineConfig({
         theme_color: '#09090b',
         background_color: '#09090b',
         display: 'standalone',
-        start_url: './',
-        scope: './',
+        start_url: basePath,
+        scope: basePath,
         lang: 'en',
         icons: [
           {
@@ -54,7 +58,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        navigateFallback: 'index.html',
+        navigateFallback: `${basePath}index.html`,
         navigateFallbackDenylist: [/^\/api\//],
       },
     }),
